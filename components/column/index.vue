@@ -2,17 +2,18 @@
 import draggable from 'vuedraggable'
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
+import { useToast } from "primevue/usetoast";
 
 import TaskItem from './task-item.vue';
-import MenuComponent from './menu.vue'
 
 import type { TResponse, ITaskOverview } from '@/stores/types';
 import useOnKeyStroke from '@/composables/useOnKeyStroke';
 
 const config = useRuntimeConfig();
 const tasks = ref<ITaskOverview[]>([]);
+const toast = useToast();
 
-const { id, title } = defineProps({
+const { id: columnId, title } = defineProps({
   id: {
     type: Number,
     required: true
@@ -27,15 +28,17 @@ const drag = ref(false)
 const columnTitle = ref<string>(title);
 const toggleEditColumnName = ref<boolean>(false);
 const isInputChange = ref<boolean>(false);
+const isAddingNewTask = ref<boolean>(false);
+const isAddingNewTaskBottom = ref<boolean>(false);
 
 onMounted(async () => {
-  if (id) {
+  if (columnId) {
     await fetchTasksOfColumn();
   }
 });
 
 async function fetchTasksOfColumn() {
-  const { data, execute } = useFetch<TResponse<ITaskOverview[]>>(`/tasks/column/${id}`, {
+  const { data, execute } = useFetch<TResponse<ITaskOverview[]>>(`/tasks/column/${columnId}`, {
     baseURL: config.public.apiUrl,
     method: 'GET',
     headers: {
@@ -53,7 +56,7 @@ async function fetchTasksOfColumn() {
 }
 
 async function updateColumnTitle() {
-  const { data, execute } = useFetch<TResponse<any>>(`/columns/${id}`, {
+  const { data, execute } = useFetch<TResponse<any>>(`/columns/${columnId}`, {
     baseURL: config.public.apiUrl,
     method: 'PUT',
     headers: {
@@ -73,16 +76,32 @@ async function updateColumnTitle() {
   }
 }
 
-const handle = (e: any) => {
-  console.log('e', e);
-}
-
-const log = (e: any) => {
-  console.log('e', e);
+const onDragItemToOtherColumn = async (e: any, columnId: number) => {
+  const draggedItemId = e.item._underlying_vm_.id;
+  const destinationColumn = +e.to.dataset.columnId;
+  if (destinationColumn === columnId) {
+    return;
+  }
+  useFetch<TResponse<ITaskOverview>>(`/tasks/${draggedItemId}`, {
+    baseURL: config.public.apiUrl,
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${config.public.token}`,
+    },
+    body: JSON.stringify({
+      column: destinationColumn
+    }),
+    onResponse: (response) => {
+      if (response.response._data.success) {
+        toast.add({ severity: 'success', summary: 'Thành công!', detail: 'Đã dịch chuyển task qua cột khác.', life: 3000 });
+      }
+    },
+  })
 }
 
 const onToggleColumnTitleName = (e: MouseEvent) => {
-  // e.stopPropagation();
+  e.stopPropagation();
   toggleEditColumnName.value = true
 }
 
@@ -107,6 +126,49 @@ const handleCancelEditColumnName = (event: KeyboardEvent) => {
   toggleEditColumnName.value = false;
 }
 
+const onAddingNewTask = () => {
+  isAddingNewTask.value = true;
+}
+
+const onAddingNewTaskBottom = () => {
+  isAddingNewTaskBottom.value = true;
+}
+
+const onCancelAddingNewTask = () => {
+  isAddingNewTask.value = false;
+}
+
+const onCancelAddingNewTaskBottom = () => {
+  isAddingNewTaskBottom.value = false;
+}
+
+async function createQuickTask(taskName: string) {
+  const body = {
+    title: taskName,
+    column: columnId
+  }
+  await useFetch<TResponse<ITaskOverview>>(`/tasks`, {
+    baseURL: config.public.apiUrl,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${config.public.token}`,
+    },
+    body: JSON.stringify(body),
+    onResponse: (response) => {
+      if (response.response._data.success) {
+        isAddingNewTask.value = false;
+        tasks.value.push(response.response._data.data);
+        console.log('aaaaaaa');
+        toast.add({ severity: 'success', summary: 'Thành công!', detail: '[Admin login][FE] The column chart should be update somethings.', life: 3000 });
+      }
+    },
+    onResponseError: () => {
+      toast.add({ severity: 'error', summary: 'Có lỗi xảy ra!', detail: 'Vui lòng thử lại!', life: 3000 });
+    }
+  })
+}
+
 useOnKeyStroke('Escape', handleCancelEditColumnName);
 
 const menu = ref();
@@ -116,7 +178,8 @@ const items = ref([
     items: [
       {
         label: 'Thêm thẻ',
-        icon: 'pi pi-file-plus'
+        icon: 'pi pi-file-plus',
+        command: onAddingNewTask
       },
       {
         label: 'Sao chép danh sách',
@@ -140,6 +203,7 @@ const toggle = (event: MouseEvent) => {
 </script>
 
 <template>
+  <Toast />
   <li class="block shrink-0 self-start h-full whitespace-nowrap px-1.5 py-0">
     <div class="column bg-[#f1f2f4] pb-2 rounded-xl max-h-full w-[270px]">
       <div
@@ -157,8 +221,9 @@ const toggle = (event: MouseEvent) => {
       </div>
       <ol
         class="task-list py-0.5 flex z-[1] flex-auto flex-col overflow-x-hidden overflow-y-auto gap-y-2 mx-1 my-0 px-1 py-0">
-        <draggable v-if="tasks.length > 0" class="flex flex-col gap-y-2 mt-2" :list="tasks" group="people"
-          @start="drag = true" @end="drag = false" @handle="handle" @change="log" item-key="id">
+        <quick-create-task-form v-if="isAddingNewTask" @cancel="onCancelAddingNewTask" @submit="createQuickTask" />
+        <draggable v-if="tasks.length > 0" class="flex flex-col gap-y-2 mt-2" :data-column-id="columnId" :list="tasks"
+          group="tasks" @end="onDragItemToOtherColumn($event, columnId)" :item-key="columnId.toString()">
           <template #item="{ element }">
             <li class="flex flex-col gap-y-2 scroll-m-20">
               <task-item :id="element.id" :title="element.title" />
@@ -166,6 +231,15 @@ const toggle = (event: MouseEvent) => {
           </template>
         </draggable>
       </ol>
+      <div v-if="!isAddingNewTaskBottom" class="flex items-center justify-between gap-x-1 pt-2 pb-0 px-2">
+        <Button @click="onAddingNewTaskBottom" label="Thêm thẻ" icon="pi pi-plus" text aria-label="Add task" />
+      </div>
+      <div  v-else class="mx-1 my-0 px-1 pt-2">
+        <quick-create-task-form
+        @cancel="onCancelAddingNewTaskBottom" 
+        @submit="createQuickTask"
+      />
+      </div>
     </div>
   </li>
 </template>
@@ -175,7 +249,7 @@ const toggle = (event: MouseEvent) => {
   list-style: none;
   -webkit-overflow-scrolling: touch;
   -webkit-transform: translate3d(0, 0, 0);
-  scrollbar-color: var(--ds-background-neutral-hovered, #091e4224) var(--ds-background-neutral, #091e420f);
+  scrollbar-color: #091e4224 #091e420f;
   scrollbar-width: thin;
 }
 </style>
