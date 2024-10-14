@@ -5,9 +5,11 @@ import Drawer from '../drawer/index.vue';
 
 <template>
   <header>
-    <drawer />
-    <div class="header-name">
-      This is my personal project
+    <div class="left-header flex items-center gap-2">
+      <drawer />
+      <div class="header-name">
+        This is my personal project
+      </div>
     </div>
   </header>
 </template>
@@ -15,21 +17,21 @@ import Drawer from '../drawer/index.vue';
 <style lang="scss">
 header {
   widows: 100vw;
-  background-color: #505f79e6;
+  background-color: #344257;
 }
 
 .header-name {
   height: 100%;
-    margin-bottom: 12px;
-    padding: 0 10px;
-    overflow: hidden;
-    background: transparent;
-    color: #fff;
-    font-size: 18px;
-    font-weight: bold;
-    line-height: 32px;
-    text-decoration: none;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  margin-bottom: 12px;
+  padding: 0 10px;
+  overflow: hidden;
+  background: transparent;
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 32px;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

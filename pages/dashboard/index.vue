@@ -1,5 +1,5 @@
 <template>
   <NuxtLayout name="page-wrapper">
-    dashboard
+    <Board />
   </NuxtLayout>
 </template>
