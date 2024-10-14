@@ -25,7 +25,7 @@ async function fetchColumns() {
   await execute();
 
   if (data.value?.success) {
-    columns.value = data.value.data;
+    columns.value = data.value.data.sort((a, b) => a.order - b.order);
   }
 }
 </script>
