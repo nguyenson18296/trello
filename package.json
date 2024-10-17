@@ -10,9 +10,11 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@pinia/nuxt": "^0.5.5",
     "@primevue/themes": "^4.1.0",
     "autoprefixer": "^10.4.20",
     "nuxt": "^3.13.0",
+    "pinia": "^2.2.4",
     "postcss": "^8.4.47",
     "primeicons": "^7.0.0",
     "primevue": "^4.1.0",

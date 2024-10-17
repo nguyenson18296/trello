@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import draggable from 'vuedraggable'
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
 import { useToast } from "primevue/usetoast";
 
-import TaskItem from './task-item.vue';
-
+import TaskList from './task-list.vue';
 import type { TResponse, ITaskOverview } from '@/stores/types';
 import useOnKeyStroke from '@/composables/useOnKeyStroke';
 
+const { addMultiTasks } = useTasksStore();
 const config = useRuntimeConfig();
 const tasks = ref<ITaskOverview[]>([]);
 const toast = useToast();
@@ -23,7 +22,6 @@ const { id: columnId, title } = defineProps({
     required: true
   }
 })
-const drag = ref(false)
 
 const columnTitle = ref<string>(title);
 const toggleEditColumnName = ref<boolean>(false);
@@ -52,6 +50,7 @@ async function fetchTasksOfColumn() {
 
   if (data.value?.success) {
     tasks.value = data.value.data;
+    addMultiTasks(columnId, data.value.data);
   }
 }
 
@@ -74,30 +73,6 @@ async function updateColumnTitle() {
     toggleEditColumnName.value = false;
     isInputChange.value = false;
   }
-}
-
-const onDragItemToOtherColumn = async (e: any, columnId: number) => {
-  const draggedItemId = e.item._underlying_vm_.id;
-  const destinationColumn = +e.to.dataset.columnId;
-  if (destinationColumn === columnId) {
-    return;
-  }
-  useFetch<TResponse<ITaskOverview>>(`/tasks/${draggedItemId}`, {
-    baseURL: config.public.apiUrl,
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${config.public.token}`,
-    },
-    body: JSON.stringify({
-      column: destinationColumn
-    }),
-    onResponse: (response) => {
-      if (response.response._data.success) {
-        toast.add({ severity: 'success', summary: 'Thành công!', detail: 'Đã dịch chuyển task qua cột khác.', life: 3000 });
-      }
-    },
-  })
 }
 
 const onToggleColumnTitleName = (e: MouseEvent) => {
@@ -158,9 +133,9 @@ async function createQuickTask(taskName: string) {
     onResponse: (response) => {
       if (response.response._data.success) {
         isAddingNewTask.value = false;
+        isAddingNewTaskBottom.value = false;
         tasks.value.push(response.response._data.data);
-        console.log('aaaaaaa');
-        toast.add({ severity: 'success', summary: 'Thành công!', detail: '[Admin login][FE] The column chart should be update somethings.', life: 3000 });
+        toast.add({ severity: 'success', summary: 'Thành công!', detail: 'Tạo thẻ mới thành công', life: 3000 });
       }
     },
     onResponseError: () => {
@@ -219,26 +194,24 @@ const toggle = (event: MouseEvent) => {
           v-tooltip="'Thao tác'" />
         <Menu ref="menu" id="overlay_menu" :model="items" :popup="true" />
       </div>
-      <ol
+      <!-- <ol
         class="task-list py-0.5 flex z-[1] flex-auto flex-col overflow-x-hidden overflow-y-auto gap-y-2 mx-1 my-0 px-1 py-0">
         <quick-create-task-form v-if="isAddingNewTask" @cancel="onCancelAddingNewTask" @submit="createQuickTask" />
         <draggable v-if="tasks.length > 0" class="flex flex-col gap-y-2 mt-2" :data-column-id="columnId" :list="tasks"
           group="tasks" @end="onDragItemToOtherColumn($event, columnId)" :item-key="columnId.toString()">
           <template #item="{ element }">
-            <li class="flex flex-col gap-y-2 scroll-m-20">
-              <task-item :id="element.id" :title="element.title" />
+            <li @click="setSelectedTask(element)" class="flex flex-col gap-y-2 scroll-m-20">
+              <task-item :id="element.id" :title="element.title" :slug="element.slug" />
             </li>
           </template>
         </draggable>
-      </ol>
+      </ol> -->
+      <task-list :column-id="columnId" :is-adding-new-task="isAddingNewTask" />
       <div v-if="!isAddingNewTaskBottom" class="flex items-center justify-between gap-x-1 pt-2 pb-0 px-2">
         <Button @click="onAddingNewTaskBottom" label="Thêm thẻ" icon="pi pi-plus" text aria-label="Add task" />
       </div>
-      <div  v-else class="mx-1 my-0 px-1 pt-2">
-        <quick-create-task-form
-        @cancel="onCancelAddingNewTaskBottom" 
-        @submit="createQuickTask"
-      />
+      <div v-else class="mx-1 my-0 px-1 pt-2">
+        <quick-create-task-form @cancel="onCancelAddingNewTaskBottom" @submit="createQuickTask" />
       </div>
     </div>
   </li>
