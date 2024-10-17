@@ -1,10 +1,14 @@
 <script setup lang="ts">
-defineProps({
+const { slug } = defineProps({
   id: {
-    type: Number,
+    type: String,
     required: true
   },
   title: {
+    type: String,
+    required: true
+  },
+  slug: {
     type: String,
     required: true
   }
@@ -30,7 +34,7 @@ defineProps({
           <span class="min-w-[40px] max-w-[40px] h-2 text-transparent rounded my-0 px-0 bg-[#e2b203]" />
         </div>
       </div>
-      <NuxtLink to="/" class="text-[#172b4d] block overflow-hidden break-words whitespace-normal mb-1">
+      <NuxtLink :to="`/dashboard/${slug}`" class="text-[#172b4d] block overflow-hidden break-words whitespace-normal mb-1">
         {{ title }}
       </NuxtLink>
       <div class="task-actions flex flex-wrap max-w-full float-left gap-x-1">
