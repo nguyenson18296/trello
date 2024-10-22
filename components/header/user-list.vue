@@ -2,6 +2,8 @@
 import type { IUser, TResponse } from '@/stores/types';
 import UserAvatar from '@/components/user-avatar/index.vue';
 
+const usersStore = useUsersStore();
+const { addUsers } = usersStore;
 const config = useRuntimeConfig();
 const users = ref<IUser[]>([]);
 
@@ -22,10 +24,9 @@ async function fetchUsers() {
   // Execute the fetch and await its completion
   await execute();
 
-  console.log(data.value);
-
   if (data.value?.success) {
     users.value = data.value.data;
+    addUsers(data.value.data);
   }
 }
 

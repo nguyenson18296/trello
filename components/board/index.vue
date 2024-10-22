@@ -7,10 +7,13 @@ import Column from '~/components/column/index.vue';
 import type { TResponse, IColumn } from '@/stores/types';
 
 const tasksStore = useTasksStore();
+const modalsStore = useModalsStore();
 const config = useRuntimeConfig();
 const toast = useToast();
 
 const { selectedTask } = storeToRefs(tasksStore);
+const { toggleTaskModal } = modalsStore;
+const { isTaskModalOpen } = storeToRefs(modalsStore);
 
 const columns = ref<IColumn[]>([]);
 const isAddingColumn = ref<boolean>(false);
@@ -79,8 +82,6 @@ const route = useRoute();
 const visible = ref(false)
 // const isInitOpenModal = ref<boolean>(route.name === 'dashboard-slug');
 
-console.log('route', route);
-
 const openDialog = () => {
   visible.value = true;
 }
@@ -92,7 +93,7 @@ const onClose = () => {
 
 onBeforeRouteLeave((to, from, next) => {
   if (from.fullPath.includes('/dashboard') && to.fullPath !== '') {
-    openDialog();
+    toggleTaskModal();
     window.history.pushState(null, '', `${to.fullPath}`);
   }
   // next()
@@ -104,9 +105,8 @@ onBeforeRouteLeave((to, from, next) => {
     <Teleport to="body">
       <task-modal
         :key="selectedTask?.slug"
-        :visible="visible"
+        :visible="isTaskModalOpen"
         :slug="selectedTask?.slug ?? ''"
-        @update:visible="onClose"
       />
     </Teleport>
     <ol

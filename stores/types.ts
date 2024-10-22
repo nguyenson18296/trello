@@ -18,6 +18,7 @@ export interface ITaskOverview {
   description: string | null;
   start_date: string | null;
   due_date: string | null;
+  assignees: IUser[];
 }
 
 export interface ITasksColumn {

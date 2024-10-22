@@ -3,12 +3,14 @@ import type { ITaskOverview, ITasksColumn } from "./types";
 
 interface State {
   selectedTask: ITaskOverview | null;
+  editedTask: ITaskOverview | null;
   tasks: ITasksColumn[];
 }
 
 export const useTasksStore = defineStore("tasks", {
   state: (): State => ({
     selectedTask: null,
+    editedTask: null,
     tasks: [],
   }),
   actions: {
@@ -21,22 +23,32 @@ export const useTasksStore = defineStore("tasks", {
     setSelectedTask(task: ITaskOverview) {
       this.selectedTask = task;
     },
+    quickUpdatedTask(columnId: number, taskId: string) {
+      const editedTask = this.tasks
+        .find((column) => column.column_id === columnId)
+        ?.tasks.find((task) => task.id === taskId);
+      this.editedTask = editedTask ?? null;
+    },
     updateTaskDetail(task: Partial<ITaskOverview>) {
-      this.tasks = this.tasks.map((column) => {
-        column.tasks = column.tasks.map((t) => {
+      this.tasks = this.tasks.map((column) => ({
+        ...column,
+        tasks: column.tasks.map((t) => {
           if (t.id === task.id) {
-            const updated = {
+            return {
               ...t,
-              title: task.title ?? "",
-              slug: task.slug ?? "",
+              title: task.title ?? t.title,
+              slug: task.slug ?? t.slug,
+              assignees: task.assignees ?? t.assignees,
             };
-            console.log("updated", updated);
-            return updated;
           }
           return t;
-        });
-        return column;
-      });
+        }),
+      }));
+    },
+  },
+  getters: {
+    getTasksByColumnId: (state) => (columnId: number) => {
+      return state.tasks.find((column) => column.column_id === columnId);
     },
   },
 });
