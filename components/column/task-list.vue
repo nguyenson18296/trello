@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { getCurrentInstance } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useToast } from "primevue/usetoast";
 
@@ -20,15 +21,7 @@ const config = useRuntimeConfig();
 const tasksStore = useTasksStore();
 const toast = useToast();
 
-const { tasks: tasksStoreValue } = storeToRefs(tasksStore);
-const { setSelectedTask } = tasksStore;
-const tasks = ref<ITaskOverview[]>([]);
-
-watch(() => tasksStoreValue.value.find(item => item.column_id === props.columnId), (value) => {
-  tasks.value = value?.tasks || [];
-}, {
-  deep: true
-});
+const { setSelectedTask, getTasksByColumnId } = tasksStore;
 
 const onDragItemToOtherColumn = async (e: any, columnId: number) => {
   const draggedItemId = e.item._underlying_vm_.id;
@@ -53,6 +46,8 @@ const onDragItemToOtherColumn = async (e: any, columnId: number) => {
     },
   })
 }
+
+const tasks = computed(() => getTasksByColumnId(props.columnId)?.tasks);
 </script>
 
 <template>
@@ -61,8 +56,13 @@ const onDragItemToOtherColumn = async (e: any, columnId: number) => {
     <!-- <quick-create-task-form v-if="isAddingNewTask" @cancel="onCancelAddingNewTask" @submit="createQuickTask" /> -->
     <draggable class="flex flex-col gap-y-2 mt-2" :data-column-id="columnId" :list="tasks" group="tasks"
       @end="onDragItemToOtherColumn($event, columnId)" :item-key="columnId.toString()">
-      <li v-for="task of tasks" @click="setSelectedTask(task)" class="flex flex-col gap-y-2 scroll-m-20">
-        <task-item :id="task.id" :title="task.title" :slug="task.slug" />
+      <li v-for="task of tasks" :key="task.id" @click="setSelectedTask(task)" class="flex flex-col gap-y-2 scroll-m-20">
+        <task-item
+          :key="task.assignees.map(user => user.id).join('-')"
+          :id="task.id" :column-id="columnId" :title="task.title" :slug="task.slug"
+          :users="task.assignees"
+          @select="setSelectedTask(task)"
+        />
       </li>
     </draggable>
   </ol>

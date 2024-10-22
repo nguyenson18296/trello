@@ -1,0 +1,132 @@
+<script setup lang="ts">
+import type { CSSProperties } from 'vue';
+
+import AddMemberMenu from './add-member-menu.vue';
+
+const { taskId, columnId } = defineProps({
+  taskId: {
+    type: String,
+    required: true
+  },
+  columnId: {
+    type: Number,
+    required: true
+  }
+});
+
+const { openMenuTask } = useModalsStore();
+const { quickUpdatedTask } = useTasksStore();
+
+const menu = ref(false);
+const memberMenu = ref(false);
+const items = ref([
+  {
+    label: 'Thao tác',
+    items: [
+      {
+        label: 'Mở thẻ',
+        icon: 'pi pi-desktop',
+        command: () => {
+          // emits('select')
+          // toggleTaskModal();
+        }
+      },
+      {
+        label: 'Thêm thành viên',
+        icon: 'pi pi-user-plus',
+        command: (event: any) => {
+          openMemberMenu(event.originalEvent);
+        }
+      },
+      {
+        label: 'Thay đổi bìa',
+        icon: 'pi pi-image'
+      },
+      {
+        label: 'Chỉnh sửa ngày',
+        icon: 'pi pi-calendar'
+      }
+    ]
+  }
+]);
+
+const menuStyle = ref<CSSProperties>({
+  position: 'absolute',
+  top: '0',
+  left: '0',
+  zIndex: '1000',
+});
+const memberMenuStyle = ref<CSSProperties>({
+  position: 'absolute',
+  top: '0',
+  left: '0',
+  zIndex: '1000',
+});
+
+const toggle = (event: MouseEvent) => {
+  event.stopPropagation();
+  const buttonRect = (event.target as HTMLButtonElement)?.getBoundingClientRect();
+
+  const top = buttonRect.top + buttonRect.height + window.scrollY;
+  const left = buttonRect.left + window.scrollX;
+  menu.value = !menu.value;
+  menuStyle.value = {
+    ...menuStyle.value,
+    display: menu.value ? 'block' : 'none',
+    top: `${top}px`,
+    left: `${left}px`
+  }
+  openMenuTask();
+  if (menu.value) {
+    quickUpdatedTask(columnId, taskId);
+  }
+};
+
+const openMemberMenu = (event: MouseEvent) => {
+  const buttonRect = (event.target as HTMLButtonElement)?.getBoundingClientRect();
+
+  memberMenu.value = !memberMenu.value;
+  memberMenuStyle.value = {
+    ...memberMenuStyle.value,
+    display: memberMenu.value ? 'block' : 'none',
+    top: `${buttonRect.top + buttonRect.height + window.scrollY}px`,
+    left: `${buttonRect.left + window.scrollX}px`
+  }
+};
+
+// function handleBodyClick(e: MouseEvent) {
+//   if (menu.value && !menu.value.$el.contains(e?.target)) {
+//     menu.value = false;
+//     closeMenuTask();
+//   }
+// }
+
+// onMounted(() => {
+//   document.addEventListener('click', handleBodyClick);
+// });
+
+// onUnmounted(() => {
+//   document.removeEventListener('click', handleBodyClick);
+// });
+</script>
+
+<template>
+  <Button @click="toggle" icon="pi pi-pencil" severity="contrast" text size="small" aria-label="Edit Task"
+    v-tooltip="'Chỉnh sửa thẻ'" />
+    <Teleport to="body">
+      <Menu
+        :dismissable="false"
+        ref="menu"
+        v-if="menu"
+        id="edit_task"
+        :model="items"
+        :style="menuStyle"
+      />
+    </Teleport>
+    <Teleport to="body">
+      <AddMemberMenu
+        :styles="memberMenuStyle"
+        v-if="memberMenu"
+      />
+    </Teleport>
+</template>
