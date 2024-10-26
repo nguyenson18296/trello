@@ -11,11 +11,20 @@
           Thành viên trong thẻ
         </li>
         <li v-for="user of editedTask?.assignees" :key="user.id">
-          <button class="flex flex-row items-center justify-start w-full h-10 bg-transparent m-0 pl-1 pr-2 py-1">
-            <Avatar :image="user.avatar" size="normal" class="mr-2" />
-            <div class="flex-1 text-left overflow-hidden text-ellipsis whitespace-nowrap mr-2">
-              {{ user.username }}
+          <button
+            type="button"
+            @click="onRemoveUserFromTask(user.id)"
+            class="flex flex-row items-center justify-between w-full h-10 bg-transparent m-0 pl-1 pr-2 py-1 hover:bg-[#091e420f]"
+          >
+            <div class="flex items-center">
+              <Avatar :image="user.avatar" size="normal" class="mr-2" />
+              <div class="flex-1 text-left overflow-hidden text-ellipsis whitespace-nowrap mr-2">
+                <span>
+                  {{ user.username }}
+                </span>
+              </div>
             </div>
+            <Button icon="pi pi-times" text rounded aria-label="Filter" />
           </button>
         </li>
         <li>
@@ -82,6 +91,27 @@ const onAssignUser = async (userId: number) => {
     });
     closeMenuTask();
   }
+}
+
+const onRemoveUserFromTask = async (userId: number) => {
+  await useFetch<TResponse<ITaskOverview>>(`/tasks/${editedTask.value?.id}/remove-assignee/${userId}`, {
+    baseURL: config.public.apiUrl,
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${config.public.token}`,
+    },
+    onResponse: (response) => {
+      if (response.response._data.success) {
+        const assignees = editedTask.value?.assignees.filter(assignee => assignee.id !== userId);
+        updateTaskDetail({
+          ...editedTask.value,
+          assignees
+        });
+        closeMenuTask();
+      }
+    },
+  })
 }
 
 const usersStore = useUsersStore();

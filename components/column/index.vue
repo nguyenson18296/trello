@@ -105,12 +105,12 @@ const onAddingNewTask = () => {
   isAddingNewTask.value = true;
 }
 
-const onAddingNewTaskBottom = () => {
-  isAddingNewTaskBottom.value = true;
-}
-
 const onCancelAddingNewTask = () => {
   isAddingNewTask.value = false;
+}
+
+const onAddingNewTaskBottom = () => {
+  isAddingNewTaskBottom.value = true;
 }
 
 const onCancelAddingNewTaskBottom = () => {
@@ -194,6 +194,11 @@ const toggle = (event: MouseEvent) => {
           v-tooltip="'Thao tác'" />
         <Menu ref="menu" id="overlay_menu" :model="items" :popup="true" />
       </div>
+      <ol
+    class="task-list py-0.5 flex z-[1] flex-auto flex-col overflow-x-hidden overflow-y-auto gap-y-2 mx-1 my-0 px-1 py-0">
+      <div v-if="isAddingNewTask">
+        <quick-create-task-form @cancel="onCancelAddingNewTask" @submit="createQuickTask" />
+      </div>
       <!-- <ol
         class="task-list py-0.5 flex z-[1] flex-auto flex-col overflow-x-hidden overflow-y-auto gap-y-2 mx-1 my-0 px-1 py-0">
         <quick-create-task-form v-if="isAddingNewTask" @cancel="onCancelAddingNewTask" @submit="createQuickTask" />
@@ -213,6 +218,7 @@ const toggle = (event: MouseEvent) => {
       <div v-else class="mx-1 my-0 px-1 pt-2">
         <quick-create-task-form @cancel="onCancelAddingNewTaskBottom" @submit="createQuickTask" />
       </div>
+      </ol>
     </div>
   </li>
 </template>

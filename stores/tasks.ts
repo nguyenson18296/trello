@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import type { ITaskOverview, ITasksColumn } from "./types";
+import type { ITaskOverview, ITasksColumn, TLabelColor } from "./types";
 
 interface State {
   selectedTask: ITaskOverview | null;
@@ -45,6 +45,20 @@ export const useTasksStore = defineStore("tasks", {
         }),
       }));
     },
+    addTaskLabel(labels: TLabelColor[], taskId: string) {
+      this.tasks = this.tasks.map((column) => ({
+        ...column,
+        tasks: column.tasks.map((t) => {
+          if (t.id === taskId) {
+            return {
+              ...t,
+              labels: labels ?? t.labels,
+            };
+          }
+          return t;
+        }),
+      }));
+    }
   },
   getters: {
     getTasksByColumnId: (state) => (columnId: number) => {

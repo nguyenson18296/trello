@@ -27,7 +27,7 @@ import UserList from './user-list.vue';
   </header>
 </template>
 
-<style lang="scss">
+<style scoped lang="scss">
 header {
   widows: 100vw;
   background-color: #344257;

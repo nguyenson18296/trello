@@ -19,6 +19,7 @@ export interface ITaskOverview {
   start_date: string | null;
   due_date: string | null;
   assignees: IUser[];
+  labels: TLabelColor[];
 }
 
 export interface ITasksColumn {
@@ -31,4 +32,10 @@ export interface IUser {
   username: string;
   email: string;
   avatar: string;
+}
+
+export type TLabelColor = {
+  id: string;
+  color: string;
+  title: string;
 }

@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { getCurrentInstance } from 'vue';
-import { storeToRefs } from 'pinia';
+import draggable from 'vuedraggable';
 import { useToast } from "primevue/usetoast";
 
 import TaskItem from './task-item.vue';
@@ -48,22 +47,22 @@ const onDragItemToOtherColumn = async (e: any, columnId: number) => {
 }
 
 const tasks = computed(() => getTasksByColumnId(props.columnId)?.tasks);
+
 </script>
 
 <template>
-  <ol
-    class="task-list py-0.5 flex z-[1] flex-auto flex-col overflow-x-hidden overflow-y-auto gap-y-2 mx-1 my-0 px-1 py-0">
-    <!-- <quick-create-task-form v-if="isAddingNewTask" @cancel="onCancelAddingNewTask" @submit="createQuickTask" /> -->
     <draggable class="flex flex-col gap-y-2 mt-2" :data-column-id="columnId" :list="tasks" group="tasks"
       @end="onDragItemToOtherColumn($event, columnId)" :item-key="columnId.toString()">
-      <li v-for="task of tasks" :key="task.id" @click="setSelectedTask(task)" class="flex flex-col gap-y-2 scroll-m-20">
-        <task-item
-          :key="task.assignees.map(user => user.id).join('-')"
-          :id="task.id" :column-id="columnId" :title="task.title" :slug="task.slug"
-          :users="task.assignees"
-          @select="setSelectedTask(task)"
-        />
-      </li>
+      <template #item="{ element }">
+        <li @click="setSelectedTask(element)" class="flex flex-col gap-y-2 scroll-m-20">
+          <task-item
+            :key="element.assignees.map((user: IUser) => user.id).join('-')"
+            :id="element.id" :column-id="columnId" :title="element.title" :slug="element.slug"
+            :users="element.assignees"
+            :labels="element.labels"
+            @select="setSelectedTask(element)"
+          />
+        </li>
+      </template>
     </draggable>
-  </ol>
 </template>
