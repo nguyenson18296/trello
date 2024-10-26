@@ -2,7 +2,7 @@
 import { twMerge } from 'tailwind-merge';
 import { useToast } from "primevue/usetoast";
 
-import type { IUser } from '@/stores/types';
+import type { IUser, TLabelColor } from '@/stores/types';
 
 const { users: usersProps, id: taskId, slug } = defineProps({
   id: {
@@ -24,7 +24,11 @@ const { users: usersProps, id: taskId, slug } = defineProps({
   columnId: {
     type: Number,
     required: true
-  }
+  },
+  labels: {
+    type: Array as PropType<TLabelColor[]>,
+    default: [],
+  },
 })
 
 const emits = defineEmits(['select']);
@@ -32,13 +36,6 @@ const emits = defineEmits(['select']);
 const config = useRuntimeConfig();
 const toast = useToast();
 const users = ref<IUser[]>(usersProps);
-// const modalsStore = useModalsStore();
-// const { toggleTaskModal } = modalsStore;
-
-// const menu = ref();
-
-const usersAssign = computed(() => usersProps)
-console.log('usersAssign', usersAssign);
 
 const removeUserFromTask = async (userId: number) => {
   await useFetch<TResponse<ITaskOverview>>(`/tasks/${taskId}/remove-assignee/${userId}`, {
@@ -57,7 +54,6 @@ const removeUserFromTask = async (userId: number) => {
   })
 }
 
-console.log('usersProps', usersProps);
 </script>
 
 <template>
@@ -65,11 +61,13 @@ console.log('usersProps', usersProps);
     class="opacity-100 task-wrapper relative min-h-[36px] bg-white shadow-[0px_1px_1px_#091e4240,0px_0px_1px_#091e424f] text-[#172b4d] cursor-pointer scroll-m-2 rounded-lg">
     <div class="flow-root relative z-10 min-h-[24px] py-2 px-3">
       <div class="absolute z-10 right-0.5 top-0.5">
-        <task-item-menu :task-id="taskId" :column-id="columnId" />
+        <task-item-menu :task-id="taskId" :column-id="columnId" :labels="labels" />
       </div>
-      <div class="flex flex-wrap gap-1 mb-1">
-        <div class="inline-flex max-w-[calc(100%_-_4px)]">
-          <span class="min-w-[40px] max-w-[40px] h-2 text-transparent rounded my-0 px-0 bg-[#e2b203]" />
+      <div v-if="labels.length > 0" class="flex flex-wrap gap-1 mb-1">
+        <div v-for="label of labels" :key="label.id" class="inline-flex max-w-[calc(100%_-_4px)]">
+          <span :style="{
+            backgroundColor: label.color,
+          }"  class="min-w-[40px] max-w-[40px] h-2 text-transparent rounded my-0 px-0 bg-[#e2b203]" />
         </div>
       </div>
       <NuxtLink :to="`/dashboard/${slug}`"

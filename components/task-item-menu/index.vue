@@ -2,8 +2,9 @@
 import type { CSSProperties } from 'vue';
 
 import AddMemberMenu from './add-member-menu.vue';
+import EditLabelMenu from './edit-label-menu.vue';
 
-const { taskId, columnId } = defineProps({
+const { taskId, labels, columnId } = defineProps({
   taskId: {
     type: String,
     required: true
@@ -11,7 +12,11 @@ const { taskId, columnId } = defineProps({
   columnId: {
     type: Number,
     required: true
-  }
+  },
+  labels: {
+    type: Array as PropType<TLabelColor[]>,
+    default: [],
+  },
 });
 
 const { openMenuTask } = useModalsStore();
@@ -19,6 +24,8 @@ const { quickUpdatedTask } = useTasksStore();
 
 const menu = ref(false);
 const memberMenu = ref(false);
+const labelMenu = ref(false);
+
 const items = ref([
   {
     label: 'Thao tác',
@@ -29,6 +36,14 @@ const items = ref([
         command: () => {
           // emits('select')
           // toggleTaskModal();
+        }
+      },
+      {
+        label: 'Chỉnh sửa nhãn',
+        icon: 'pi pi-tag',
+        command: (event: any) => {
+          console.log('edit label', event);
+          openLabelMenu(event.originalEvent);
         }
       },
       {
@@ -57,6 +72,12 @@ const menuStyle = ref<CSSProperties>({
   zIndex: '1000',
 });
 const memberMenuStyle = ref<CSSProperties>({
+  position: 'absolute',
+  top: '0',
+  left: '0',
+  zIndex: '1000',
+});
+const labelMenuStyle = ref<CSSProperties>({
   position: 'absolute',
   top: '0',
   left: '0',
@@ -94,39 +115,30 @@ const openMemberMenu = (event: MouseEvent) => {
   }
 };
 
-// function handleBodyClick(e: MouseEvent) {
-//   if (menu.value && !menu.value.$el.contains(e?.target)) {
-//     menu.value = false;
-//     closeMenuTask();
-//   }
-// }
+const openLabelMenu = (event: MouseEvent) => {
+  const buttonRect = (event.target as HTMLButtonElement)?.getBoundingClientRect();
 
-// onMounted(() => {
-//   document.addEventListener('click', handleBodyClick);
-// });
-
-// onUnmounted(() => {
-//   document.removeEventListener('click', handleBodyClick);
-// });
+  labelMenu.value = !labelMenu.value;
+  labelMenuStyle.value = {
+    ...labelMenuStyle.value,
+    display: labelMenuStyle.value ? 'block' : 'none',
+    top: `${buttonRect.top + buttonRect.height + window.scrollY - 110}px`,
+    left: `${buttonRect.left + window.scrollX}px`
+  }
+};
 </script>
 
 <template>
   <Button @click="toggle" icon="pi pi-pencil" severity="contrast" text size="small" aria-label="Edit Task"
     v-tooltip="'Chỉnh sửa thẻ'" />
-    <Teleport to="body">
-      <Menu
-        :dismissable="false"
-        ref="menu"
-        v-if="menu"
-        id="edit_task"
-        :model="items"
-        :style="menuStyle"
-      />
-    </Teleport>
-    <Teleport to="body">
-      <AddMemberMenu
-        :styles="memberMenuStyle"
-        v-if="memberMenu"
-      />
-    </Teleport>
+  <Teleport to="body">
+    <Menu :dismissable="false" ref="menu" v-if="menu" id="edit_task" :model="items" :style="menuStyle" />
+  </Teleport>
+  <Teleport to="body">
+    <AddMemberMenu :styles="memberMenuStyle" v-if="memberMenu" />
+  </Teleport>
+  <Teleport to="body">
+    <EditLabelMenu @close="labelMenu = false" :styles="labelMenuStyle" :task-id="taskId" :selected-labels="labels"
+      v-if="labelMenu" />
+  </Teleport>
 </template>
