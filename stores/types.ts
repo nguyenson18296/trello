@@ -3,7 +3,7 @@ export type TResponse<T> = {
   status: number;
   data: T;
   [key: PropertyKey]: any;
-}
+};
 
 export interface IColumn {
   id: number;
@@ -13,6 +13,7 @@ export interface IColumn {
 
 export interface ITaskOverview {
   id: string;
+  banner?: string;
   title: string;
   slug: string;
   description: string | null;
@@ -38,4 +39,29 @@ export type TLabelColor = {
   id: string;
   color: string;
   title: string;
+};
+
+export interface IUnPlashImage {
+  id: string;
+  slug: string;
+  description: string;
+  alt_description: string;
+  links: {
+    self: string;
+    html: string;
+    download: string;
+    download_location: string;
+  };
+  urls: {
+    raw: string;
+    full: string;
+    regular: string;
+    small: string;
+    thumb: string;
+  };
+  user: {
+    first_name: string;
+    last_name: string;
+    name: string;
+  }
 }

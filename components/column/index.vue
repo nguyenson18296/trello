@@ -180,7 +180,7 @@ const toggle = (event: MouseEvent) => {
 <template>
   <Toast />
   <li class="block shrink-0 self-start h-full whitespace-nowrap px-1.5 py-0">
-    <div class="column bg-[#f1f2f4] pb-2 rounded-xl max-h-full w-[270px]">
+    <div class="column flex flex-col w-[272px] pb-2 max-h-full bg-[#f1f2f4] pb-2 rounded-xl max-h-full w-[270px]">
       <div
         class="column-header flex relative grow-0 flex-wrap items-center items-start justify-between gap-y-0 pt-2 pb-0 px-2">
         <h2 data-click-outside="true" @click="onToggleColumnTitleName" v-if="!toggleEditColumnName"
@@ -195,29 +195,17 @@ const toggle = (event: MouseEvent) => {
         <Menu ref="menu" id="overlay_menu" :model="items" :popup="true" />
       </div>
       <ol
-    class="task-list py-0.5 flex z-[1] flex-auto flex-col overflow-x-hidden overflow-y-auto gap-y-2 mx-1 my-0 px-1 py-0">
-      <div v-if="isAddingNewTask">
-        <quick-create-task-form @cancel="onCancelAddingNewTask" @submit="createQuickTask" />
-      </div>
-      <!-- <ol
         class="task-list py-0.5 flex z-[1] flex-auto flex-col overflow-x-hidden overflow-y-auto gap-y-2 mx-1 my-0 px-1 py-0">
-        <quick-create-task-form v-if="isAddingNewTask" @cancel="onCancelAddingNewTask" @submit="createQuickTask" />
-        <draggable v-if="tasks.length > 0" class="flex flex-col gap-y-2 mt-2" :data-column-id="columnId" :list="tasks"
-          group="tasks" @end="onDragItemToOtherColumn($event, columnId)" :item-key="columnId.toString()">
-          <template #item="{ element }">
-            <li @click="setSelectedTask(element)" class="flex flex-col gap-y-2 scroll-m-20">
-              <task-item :id="element.id" :title="element.title" :slug="element.slug" />
-            </li>
-          </template>
-        </draggable>
-      </ol> -->
-      <task-list :column-id="columnId" :is-adding-new-task="isAddingNewTask" />
-      <div v-if="!isAddingNewTaskBottom" class="flex items-center justify-between gap-x-1 pt-2 pb-0 px-2">
-        <Button @click="onAddingNewTaskBottom" label="Thêm thẻ" icon="pi pi-plus" text aria-label="Add task" />
-      </div>
-      <div v-else class="mx-1 my-0 px-1 pt-2">
-        <quick-create-task-form @cancel="onCancelAddingNewTaskBottom" @submit="createQuickTask" />
-      </div>
+        <div v-if="isAddingNewTask">
+          <quick-create-task-form @cancel="onCancelAddingNewTask" @submit="createQuickTask" />
+        </div>
+        <task-list :column-id="columnId" :is-adding-new-task="isAddingNewTask" />
+        <div v-if="!isAddingNewTaskBottom" class="flex items-center justify-between gap-x-1 pt-2 pb-0 px-2">
+          <Button @click="onAddingNewTaskBottom" label="Thêm thẻ" icon="pi pi-plus" text aria-label="Add task" />
+        </div>
+        <div v-else class="mx-1 my-0 px-1 pt-2">
+          <quick-create-task-form @cancel="onCancelAddingNewTaskBottom" @submit="createQuickTask" />
+        </div>
       </ol>
     </div>
   </li>

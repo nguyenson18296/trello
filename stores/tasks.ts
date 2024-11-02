@@ -36,6 +36,7 @@ export const useTasksStore = defineStore("tasks", {
           if (t.id === task.id) {
             return {
               ...t,
+              banner: task.banner ?? t.banner,
               title: task.title ?? t.title,
               slug: task.slug ?? t.slug,
               assignees: task.assignees ?? t.assignees,

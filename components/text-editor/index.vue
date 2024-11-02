@@ -2,42 +2,39 @@
   <div v-if="editor" class="container">
     <div class="control-group">
       <div class="button-group">
-        <button @click="editor.chain().focus().toggleHeading({ level: 1 }).run()" :class="{ 'is-active': editor.isActive('heading', { level: 1 }) }">
+        <button @click="editor.chain().focus().toggleHeading({ level: 1 }).run()"
+          :class="{ 'is-active': editor.isActive('heading', { level: 1 }) }">
           H1
         </button>
-        <button @click="editor.chain().focus().toggleHeading({ level: 2 }).run()" :class="{ 'is-active': editor.isActive('heading', { level: 2 }) }">
+        <button @click="editor.chain().focus().toggleHeading({ level: 2 }).run()"
+          :class="{ 'is-active': editor.isActive('heading', { level: 2 }) }">
           H2
         </button>
-        <button @click="editor.chain().focus().toggleHeading({ level: 3 }).run()" :class="{ 'is-active': editor.isActive('heading', { level: 3 }) }">
+        <button @click="editor.chain().focus().toggleHeading({ level: 3 }).run()"
+          :class="{ 'is-active': editor.isActive('heading', { level: 3 }) }">
           H3
-        </button>
-        <button @click="editor.chain().focus().setParagraph().run()" :class="{ 'is-active': editor.isActive('paragraph') }">
-          <img src="/public/images/paragraph.svg" class="w-4 h-4" />
         </button>
         <button @click="editor.chain().focus().toggleBold().run()" :class="{ 'is-active': editor.isActive('bold') }">
           <img src="/public/images/bold.svg" class="w-4 h-4" />
         </button>
-        <button @click="editor.chain().focus().toggleItalic().run()" :class="{ 'is-active': editor.isActive('italic') }">
+        <button @click="editor.chain().focus().toggleItalic().run()"
+          :class="{ 'is-active': editor.isActive('italic') }">
           <img src="/public/images/italic.svg" class="w-4 h-4" />
         </button>
-        <button @click="editor.chain().focus().toggleStrike().run()" :class="{ 'is-active': editor.isActive('strike') }">
+        <button @click="editor.chain().focus().toggleStrike().run()"
+          :class="{ 'is-active': editor.isActive('strike') }">
           <img src="/public/images/strike.svg" class="w-4 h-4" />
         </button>
-        <button @click="editor.chain().focus().toggleHighlight().run()" :class="{ 'is-active': editor.isActive('highlight') }">
-          <img src="/public/images/highlight.svg" class="w-4 h-4" />
-        </button>
-        <button @click="editor.chain().focus().setTextAlign('left').run()" :class="{ 'is-active': editor.isActive({ textAlign: 'left' }) }">
-          <i class="pi pi-align-left" style="font-size: 1rem"></i>
-        </button>
-        <button @click="editor.chain().focus().setTextAlign('center').run()" :class="{ 'is-active': editor.isActive({ textAlign: 'center' }) }">
-          <i class="pi pi-align-center" style="font-size: 1rem"></i>
-        </button>
-        <button @click="editor.chain().focus().setTextAlign('right').run()" :class="{ 'is-active': editor.isActive({ textAlign: 'right' }) }">
-          <i class="pi pi-align-right" style="font-size: 1rem"></i>
-        </button>
-        <button @click="editor.chain().focus().setTextAlign('justify').run()" :class="{ 'is-active': editor.isActive({ textAlign: 'justify' }) }">
-          <i class="pi pi-align-justify" style="font-size: 1rem"></i>
-        </button>
+        <Button
+          @click="editor.chain().focus().toggleBulletList().run()" 
+          icon="pi pi-list" severity="contrast" text rounded
+          :class="{ 'is-active': editor.isActive('bulletList') }"
+          />
+        <Button
+          @click="editor.chain().focus().toggleOrderedList().run()"
+          icon="pi pi-sort-numeric-down" severity="contrast" text rounded
+          :class="{ 'is-active': editor.isActive('bulletList') }"
+        />
       </div>
     </div>
     <editor-content :editor="editor" />
@@ -45,88 +42,38 @@
 </template>
 
 <script setup>
+import { onBeforeUnmount } from 'vue'
 import { useEditor, EditorContent } from '@tiptap/vue-3'
-import Highlight from '@tiptap/extension-highlight'
 import TextAlign from '@tiptap/extension-text-align'
 import StarterKit from '@tiptap/starter-kit'
+import Text from '@tiptap/extension-text'
+import Document from '@tiptap/extension-document'
+import Heading from '@tiptap/extension-heading'
+import Paragraph from '@tiptap/extension-paragraph'
+
+const { content } = defineProps({
+  content: {
+    type: String,
+    required: false,
+  },
+})
+
+const emits = defineEmits(['update'])
 
 const editor = useEditor({
-  content: '<p>I’m running Tiptap with Vue.js. 🎉</p>',
-  extensions: [StarterKit, Highlight, TextAlign],
+  content: content,
+  extensions: [StarterKit, Text, Document, Heading, Paragraph, TextAlign],
+  onUpdate: ({ editor }) => {
+    emits('update', editor.getHTML())
+  },
 })
 
-watch(() => editor?.value, (html) => {
-  console.log(html.contentComponent)
+onBeforeUnmount(() => {
+  editor.value.destroy();
 })
-
-// export default {
-//   components: {
-//     EditorContent,
-//   },
-
-//   data() {
-//     return {
-//       editor: null,
-//       html: '',
-//       json: '',
-//     }
-//   },
-
-//   mounted() {
-//     this.editor = new Editor({
-//       extensions: [
-//         StarterKit,
-//         TextAlign.configure({
-//           types: ['heading', 'paragraph'],
-//         }),
-//         Highlight,
-//       ],
-//       content: `
-//         <h3 style="text-align:center">
-//           Devs Just Want to Have Fun by Cyndi Lauper
-//         </h3>
-//         <p style="text-align:center">
-//           I come home in the morning light<br>
-//           My mother says, <mark>“When you gonna live your life right?”</mark><br>
-//           Oh mother dear we’re not the fortunate ones<br>
-//           And devs, they wanna have fun<br>
-//           Oh devs just want to have fun</p>
-//         <p style="text-align:center">
-//           The phone rings in the middle of the night<br>
-//           My father yells, "What you gonna do with your life?"<br>
-//           Oh daddy dear, you know you’re still number one<br>
-//           But <s>girls</s>devs, they wanna have fun<br>
-//           Oh devs just want to have
-//         </p>
-//         <p style="text-align:center">
-//           That’s all they really want<br>
-//           Some fun<br>
-//           When the working day is done<br>
-//           Oh devs, they wanna have fun<br>
-//           Oh devs just wanna have fun<br>
-//           (devs, they wanna, wanna have fun, devs wanna have)
-//         </p>
-//       `,
-//     })
-//   },
-
-//   beforeUnmount() {
-//     this.editor.destroy()
-//   },
-
-//   created() {
-//     this.editor.on('update', () => {
-//       console.log('update')
-//       this.html = this.editor.getHTML();
-//       this.json = this.editor.getJSON();
-//       this.$emit('update', this.html);
-//     });
-//   }
-// }
 </script>
 
 <style lang="scss">
-
 .container {
   .button-group {
     display: flex;
@@ -151,18 +98,28 @@ watch(() => editor?.value, (html) => {
     }
   }
 }
+
 /* Basic editor styles */
 .container {
   border: 1px solid #8590a2;
+
   :first-child {
     margin-top: 0;
+  }
+
+  ul {
+    list-style-type: disc;
+  }
+
+  ol {
+    list-style-type: decimal;
   }
 
   /* List styles */
   ul,
   ol {
     padding: 0 1rem;
-    margin: 1.25rem 1rem 1.25rem 0.4rem;
+    margin: 0.5rem 1rem 0.5rem 0.4rem;
 
     li p {
       margin-top: 0.25em;

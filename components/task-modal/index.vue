@@ -7,6 +7,22 @@
       })
     }">
       <template #container>
+        <div class="relative">
+          <div :style="{
+      backgroundImage: `url(${task.banner})`
+    }"
+            class="bg-[rgb(123,162,209)] bg-contain min-h-[116px] h-40 max-h-40 bg-no-repeat bg-center select-none rounded-t-xl">
+          </div>
+          <Button type="button" @click="openBannerMenu" class="!absolute z-[6] m-3 right-0 bottom-0" severity="secondary"
+            label="Ảnh bìa" icon="pi pi-image" raised />
+            <AddBannerMenu
+              @close="bannerMenu = false" 
+              :styles="bannerMenuStyle" 
+              :task-id="task.id"
+              v-if="bannerMenu"
+              @update="task.banner = $event"
+            />
+        </div>
         <div class="pl-4 pr-[52px] pt-4 pb-0">
           <section class="grid gap-y-[revert] grid-cols-[[icon]_40px_[body]_minmax(0,1fr)] mb-6">
             <div>
@@ -32,20 +48,7 @@
                 </h3>
               </div>
             </hgroup>
-            <div class="col-start-[body]">
-              <button
-                v-if="!task.description"
-                class="block box-border w-full bg-[#091e420f] text-[#172b4d] font-medium text-left m-0 pt-2 pb-8 px-3 rounded-[3px] hover:bg-[#091e4224]">
-                Thêm mô tả chi tiết hơn...
-              </button>
-              <div v-else class="cursor-pointer">
-                <div class="text-base leading-6 text-[#172B4D] max-w-[1800px] break-words whitespace-pre-wrap mx-auto my-0">
-                  <p class="text-sm">
-                    {{ task.description }}
-                  </p>
-                </div>
-              </div>
-            </div>
+            <DescriptionSection :task="task" />
           </section>
           <section class="grid gap-y-[revert] grid-cols-[[icon]_40px_[body]_minmax(0,1fr)] mb-6">
             <div>
@@ -64,13 +67,7 @@
                   <Avatar image="https://res.cloudinary.com/dou7jklnk/image/upload/v1712035288/i0evalip90wyrpen8raa.jpg"
                     size="normal" shape="circle" />
                 </div>
-                <div>
-                  <div>
-                    <TextEditor />
-                    <!-- <InputText type="text"
-                      class="box-border text-[#172b4d] text-sm font-normal leading-5 transition-[background-color,border-color,box-shadow] duration-[85ms] ease-[ease] bg-white shadow-[inset_0_0_0_1px_#091e4224] w-full mb-0 px-3 py-2 rounded-[3px] border-[none]" /> -->
-                  </div>
-                </div>
+                <CommentSection />
               </div>
             </div>
           </section>
@@ -85,15 +82,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, type CSSProperties } from "vue";
 import { storeToRefs } from 'pinia';
 
 import { useTasksStore } from '@/stores/tasks';
+
+import CommentSection from './comment-section.vue';
+import DescriptionSection from './description-section.vue';
+import AddBannerMenu from '@/components/task-item-menu/add-banner-menu.vue';
 
 const { updateTaskDetail } = useTasksStore();
 const modalsStore = useModalsStore();
 const { toggleTaskModal } = modalsStore;
 const { isTaskModalOpen } = storeToRefs(modalsStore);
+
+const bannerMenu = ref(false);
+const bannerMenuStyle = ref<CSSProperties>({
+  position: 'absolute',
+  top: '0',
+  left: '0',
+  zIndex: '1000',
+});
 
 const { slug } = defineProps({
   slug: {
@@ -111,7 +120,9 @@ const task = ref<ITaskOverview>({
   slug: '',
   start_date: '',
   due_date: '',
+  banner: '',
   assignees: [],
+  labels: [],
 });
 
 async function fetchTaskDetail() {
@@ -120,7 +131,7 @@ async function fetchTaskDetail() {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${config.public.apiKey}`,
+      Authorization: `Bearer ${config.public.token}`,
     }
   })
 
@@ -168,6 +179,18 @@ const onChangeName = async (e: Event) => {
       toast.add({ severity: 'error', summary: 'Có lỗi xảy ra!', detail: 'Vui lòng thử lại!', life: 3000 });
     }
   })
+};
+
+const openBannerMenu = (event: MouseEvent) => {
+  const buttonRect = (event.target as HTMLButtonElement)?.getBoundingClientRect();
+
+  bannerMenu.value = !bannerMenu.value;
+  bannerMenuStyle.value = {
+    ...bannerMenuStyle.value,
+    display: bannerMenuStyle.value ? 'block' : 'none',
+    top: `${buttonRect.top}px`,
+    left: `${buttonRect.left - 300}px`
+  }
 };
 
 </script>

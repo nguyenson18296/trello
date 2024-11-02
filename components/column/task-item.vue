@@ -9,6 +9,10 @@ const { users: usersProps, id: taskId, slug } = defineProps({
     type: String,
     required: true
   },
+  banner: {
+    type: String,
+    required: false
+  },
   title: {
     type: String,
     required: true
@@ -69,6 +73,12 @@ const removeUserFromTask = async (userId: number) => {
             backgroundColor: label.color,
           }"  class="min-w-[40px] max-w-[40px] h-2 text-transparent rounded my-0 px-0 bg-[#e2b203]" />
         </div>
+      </div>
+      <div v-if="banner" class="py-4">
+        <div class="overflow-hidden bg-no-repeat bg-center bg-cover select-none p-0 rounded-t-lg" :style="{
+          backgroundImage: `url(${banner})`,
+          minHeight: '150px',
+        }" />
       </div>
       <NuxtLink :to="`/dashboard/${slug}`"
         class="text-[#172b4d] block overflow-hidden break-words whitespace-normal mb-1">
