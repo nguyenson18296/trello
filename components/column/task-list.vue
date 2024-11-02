@@ -60,6 +60,7 @@ const tasks = computed(() => getTasksByColumnId(props.columnId)?.tasks);
             :id="element.id" :column-id="columnId" :title="element.title" :slug="element.slug"
             :users="element.assignees"
             :labels="element.labels"
+            :banner="element.banner"
             @select="setSelectedTask(element)"
           />
         </li>

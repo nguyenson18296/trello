@@ -41,7 +41,7 @@ export default defineNuxtConfig({
     public: {
       apiUrl: process.env.NUXT_PUBLIC_API_BASE,
       token: process.env.NUXT_PUBLIC_TOKEN,
-      splashAccessKey: process.env.NUXT_PUBLIC_SPLASH_ACCESS_KEY,
+      unSplashAccessKey: process.env.NUXT_PUBLIC_SPLASH_ACCESS_KEY,
     }
   }
 });
