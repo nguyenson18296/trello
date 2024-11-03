@@ -10,7 +10,7 @@
         <li>
           Thành viên trong thẻ
         </li>
-        <li v-for="user of editedTask?.assignees" :key="user.id">
+        <li v-for="user of currentAssignees" :key="user.id">
           <button
             type="button"
             @click="onRemoveUserFromTask(user.id)"
@@ -49,8 +49,8 @@
 import { storeToRefs } from 'pinia';
 
 const tasksStore = useTasksStore();
-const { updateTaskDetail } = tasksStore;
-const { editedTask } = storeToRefs(tasksStore);
+const { updateTaskDetail, setSelectedTask } = tasksStore;
+const { selectedTask } = storeToRefs(tasksStore);
 const { closeMenuTask } = useModalsStore();
 
 defineProps({
@@ -59,14 +59,21 @@ defineProps({
     required: true
   }
 })
+const emits = defineEmits(['remove', 'add']);
 const config = useRuntimeConfig();
+
+const currentAssignees = ref<ITaskOverview["assignees"]>(selectedTask.value?.assignees ?? []);
+
+watch(() => selectedTask.value?.assignees, (newValue) => {
+  currentAssignees.value = newValue ?? [];
+});
 
 const onAssignUser = async (userId: number) => {
   const user = users.value.find(user => user.id === userId);
   if (user) {
-    const assignees = editedTask.value?.assignees.concat(user);
+    const assignees = currentAssignees.value.concat(user);
     const assignees_id = assignees?.map(assignee => assignee.id) ?? [];
-    await useFetch<TResponse<ITaskOverview>>(`/tasks/${editedTask.value?.id}`, {
+    await useFetch<TResponse<ITaskOverview>>(`/tasks/${(selectedTask).value?.id}`, {
       baseURL: config.public.apiUrl,
       headers: {
         "Content-Type": "application/json",
@@ -79,22 +86,24 @@ const onAssignUser = async (userId: number) => {
       onResponse: (response) => {
         if (response.response._data.success) {
           updateTaskDetail({
-            ...editedTask.value,
+            ...selectedTask.value,
             assignees
           });
+          currentAssignees.value = assignees;
+          emits('add', userId);
+          setSelectedTask({
+            ...selectedTask.value,
+            assignees
+          });
+          closeMenuTask();
         }
       },
     })
-    updateTaskDetail({
-      ...editedTask.value,
-      assignees
-    });
-    closeMenuTask();
   }
 }
 
 const onRemoveUserFromTask = async (userId: number) => {
-  await useFetch<TResponse<ITaskOverview>>(`/tasks/${editedTask.value?.id}/remove-assignee/${userId}`, {
+  await useFetch<TResponse<ITaskOverview>>(`/tasks/${selectedTask.value?.id}/remove-assignee/${userId}`, {
     baseURL: config.public.apiUrl,
     method: "PUT",
     headers: {
@@ -103,11 +112,19 @@ const onRemoveUserFromTask = async (userId: number) => {
     },
     onResponse: (response) => {
       if (response.response._data.success) {
-        const assignees = editedTask.value?.assignees.filter(assignee => assignee.id !== userId);
+        const assignees = selectedTask.value?.assignees.filter(assignee => assignee.id !== userId);
         updateTaskDetail({
-          ...editedTask.value,
+          ...selectedTask.value,
           assignees
         });
+        if (assignees) {
+          currentAssignees.value = assignees;
+          setSelectedTask({
+            ...selectedTask.value,
+            assignees
+          });
+        }
+        emits('remove', userId);
         closeMenuTask();
       }
     },
@@ -118,7 +135,7 @@ const usersStore = useUsersStore();
 const { users } = storeToRefs(usersStore);
 
 const usersNotAssigned = computed(() => {
-  return users.value.filter(user => !editedTask.value?.assignees.some(assignee => assignee.id === user.id));
+  return users.value.filter(user => !currentAssignees.value.some(assignee => assignee.id === user.id));
 });
 </script>
 
