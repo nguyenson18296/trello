@@ -1,7 +1,7 @@
 <template>
   <div class="card flex justify-center">
     <Dialog v-model:visible="isTaskModalOpen" :modal="true" :dismissableMask="true" :header="task.title"
-      :style="{ width: '60dvw', height: '100dvh' }" :pt="{
+      :style="{ width: '63dvw', height: '100dvh' }" :pt="{
       header: () => ({
         class: ['!pb-0']
       })
@@ -37,45 +37,53 @@
               trong danh sách Cần làm
             </div>
           </section>
-          <section class="grid gap-y-[revert] grid-cols-[[icon]_40px_[body]_minmax(0,1fr)] mb-6">
-            <div>
-              <i class="pi pi-list-check" style="font-size: 1rem"></i>
-            </div>
-            <hgroup class="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
-              <div class="flex grow items-center gap-x-2">
-                <h3 class="text-base font-semibold">
-                  Mô tả
-                </h3>
-              </div>
-            </hgroup>
-            <DescriptionSection :task="task" />
-          </section>
-          <section class="grid gap-y-[revert] grid-cols-[[icon]_40px_[body]_minmax(0,1fr)] mb-6">
-            <div>
-              <i class="pi pi-list" style="font-size: 1rem"></i>
-            </div>
-            <hgroup class="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
-              <div class="flex grow items-center gap-x-2">
-                <h3 class="text-base font-semibold">
-                  Hoạt động
-                </h3>
-              </div>
-            </hgroup>
-            <div class="grid col-span-full grid-cols-[subgrid]">
-              <div class="grid col-span-full grid-cols-[subgrid] mb-2">
-                <div class="relative overflow-visible leading-[10px] align-top whitespace-nowrap">
-                  <Avatar image="https://res.cloudinary.com/dou7jklnk/image/upload/v1712035288/i0evalip90wyrpen8raa.jpg"
-                    size="normal" shape="circle" />
-                </div>
-                <CommentSection />
-              </div>
-            </div>
-          </section>
         </div>
-        <div class="flex justify-end gap-2">
+        <div class="grid grid-cols-[[main]_568px_[sidebar]_minmax(0,1fr)] grid-rows-[auto_auto] gap-x-4 gap-y-2">
+          <div class="col-start-[main] pl-4 pb-2">
+            <div class="flex flex-wrap gap-x-2 gap-y-2 pl-10">
+              <left-member-section />
+            </div>
+            <section class="grid gap-y-[revert] grid-cols-[[icon]_40px_[body]_minmax(0,1fr)] mb-6">
+              <div>
+                <i class="pi pi-list-check" style="font-size: 1rem"></i>
+              </div>
+              <hgroup class="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
+                <div class="flex grow items-center gap-x-2">
+                  <h3 class="text-base font-semibold">
+                    Mô tả
+                  </h3>
+                </div>
+              </hgroup>
+              <DescriptionSection :task="task" />
+            </section>
+            <section class="grid gap-y-[revert] grid-cols-[[icon]_40px_[body]_minmax(0,1fr)] mb-6">
+              <div>
+                <i class="pi pi-list" style="font-size: 1rem"></i>
+              </div>
+              <hgroup class="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
+                <div class="flex grow items-center gap-x-2">
+                  <h3 class="text-base font-semibold">
+                    Hoạt động
+                  </h3>
+                </div>
+              </hgroup>
+              <div class="grid col-span-full grid-cols-[subgrid]">
+                <div class="grid col-span-full grid-cols-[subgrid] mb-2">
+                  <div class="relative overflow-visible leading-[10px] align-top whitespace-nowrap">
+                    <Avatar image="https://res.cloudinary.com/dou7jklnk/image/upload/v1712035288/i0evalip90wyrpen8raa.jpg"
+                      size="normal" shape="circle" />
+                  </div>
+                  <CommentSection />
+                </div>
+              </div>
+            </section>
+          </div>
+          <RightSection :assignees="task.assignees" />
+        </div>
+        <!-- <div class="flex justify-end gap-2">
           <Button type="button" label="Cancel" severity="secondary" @click="toggleTaskModal"></Button>
           <Button type="button" label="Save" @click="toggleTaskModal"></Button>
-        </div>
+        </div> -->
       </template>
     </Dialog>
   </div>
@@ -89,7 +97,9 @@ import { useTasksStore } from '@/stores/tasks';
 
 import CommentSection from './comment-section.vue';
 import DescriptionSection from './description-section.vue';
-import AddBannerMenu from '@/components/task-item-menu/add-banner-menu.vue';
+import AddBannerMenu from '@/components/shared/add-member-menu.vue';
+import LeftMemberSection from './left-member-section.vue';
+import RightSection from './right-actions/index.vue';
 
 const { updateTaskDetail } = useTasksStore();
 const modalsStore = useModalsStore();

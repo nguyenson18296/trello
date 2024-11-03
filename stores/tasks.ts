@@ -20,14 +20,17 @@ export const useTasksStore = defineStore("tasks", {
         tasks,
       });
     },
-    setSelectedTask(task: ITaskOverview) {
-      this.selectedTask = task;
+    setSelectedTask(task: Partial<ITaskOverview>) {
+      this.selectedTask = {
+        ...this.selectedTask,
+        ...(task as ITaskOverview)
+      };
     },
     quickUpdatedTask(columnId: number, taskId: string) {
       const editedTask = this.tasks
         .find((column) => column.column_id === columnId)
         ?.tasks.find((task) => task.id === taskId);
-      this.editedTask = editedTask ?? null;
+      this.selectedTask = editedTask ?? null;
     },
     updateTaskDetail(task: Partial<ITaskOverview>) {
       this.tasks = this.tasks.map((column) => ({
