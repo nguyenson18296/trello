@@ -1,6 +1,6 @@
 <template>
     <div class="col-start-[body]" v-if="isDescriptionToggling">
-      <TextEditor @update="update" :content="task.description ?? ''" />
+      <TextEditor class="text-editor" @update="update" :content="task.description ?? ''" />
       <div class="flex justify-start mt-2 gap-2">
         <Button type="button" size="small" @click="updateTaskDescription" label="Save"></Button>
         <Button type="button" label="Cancel" severity="secondary" size="small" @click="onCancelDescription"></Button>
@@ -68,6 +68,14 @@ const updateTaskDescription = async () => {
 </script>
 
 <style lang="scss">
+.text-editor {
+  p {
+    min-height: 150px;
+    max-height: 150px;
+    overflow: auto;
+  }
+}
+
 .task-description {
   ul {
     padding-top: 0.5rem;
