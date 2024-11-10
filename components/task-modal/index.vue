@@ -1,7 +1,7 @@
 <template>
   <div class="card flex justify-center">
     <Dialog v-model:visible="isTaskModalOpen" :modal="true" :dismissableMask="true" :header="task.title"
-      :style="{ width: '63dvw', height: '100dvh' }" :pt="{
+      :style="{ width: '60dvw', height: '100dvh' }" :pt="{
       header: () => ({
         class: ['!pb-0']
       })
@@ -42,8 +42,10 @@
           <div class="col-start-[main] pl-4 pb-2">
             <div class="flex flex-wrap gap-x-2 gap-y-2 pl-10">
               <left-member-section />
+              <left-label-section />
+              <left-date-section />
             </div>
-            <section class="grid gap-y-[revert] grid-cols-[[icon]_40px_[body]_minmax(0,1fr)] mb-6">
+            <section class="grid gap-y-[revert] grid-cols-[[icon]_40px_[body]_minmax(0,1fr)] my-6">
               <div>
                 <i class="pi pi-list-check" style="font-size: 1rem"></i>
               </div>
@@ -97,13 +99,15 @@ import { useTasksStore } from '@/stores/tasks';
 
 import CommentSection from './comment-section.vue';
 import DescriptionSection from './description-section.vue';
-import AddBannerMenu from '@/components/shared/add-member-menu.vue';
+import AddBannerMenu from '@/components/shared/add-banner-menu.vue';
 import LeftMemberSection from './left-member-section.vue';
+import LeftLabelSection from './left-label-section.vue';
 import RightSection from './right-actions/index.vue';
+import LeftDateSection from './left-date-section.vue';
 
 const { updateTaskDetail } = useTasksStore();
 const modalsStore = useModalsStore();
-const { toggleTaskModal } = modalsStore;
+// const { toggleTaskModal } = modalsStore;
 const { isTaskModalOpen } = storeToRefs(modalsStore);
 
 const bannerMenu = ref(false);
@@ -193,6 +197,7 @@ const onChangeName = async (e: Event) => {
 
 const openBannerMenu = (event: MouseEvent) => {
   const buttonRect = (event.target as HTMLButtonElement)?.getBoundingClientRect();
+  console.log('buttonRect', buttonRect);
 
   bannerMenu.value = !bannerMenu.value;
   bannerMenuStyle.value = {

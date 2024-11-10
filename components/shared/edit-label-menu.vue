@@ -190,7 +190,7 @@ const emits = defineEmits(['close']);
 
 const config = useRuntimeConfig();
 const tasksStore = useTasksStore();
-const { addTaskLabel } = tasksStore;
+const { addTaskLabel, setSelectedTask } = tasksStore;
 
 const listColorsInit = ref<TLabelColor[]>([]);
 const menuType = ref<TEditLabelType>('init');
@@ -322,6 +322,9 @@ const onUpdateTaskLabel = async () => {
       if (response.response._data.success) {
         const labels = response.response._data.data.labels;
         addTaskLabel(labels, props.taskId);
+        setSelectedTask({
+          labels: labels
+        });
       }
     }
   });
@@ -345,23 +348,15 @@ watch(menuType, (newValue) => {
 </script>
 
 <style scoped>
-.color-button-container {
-  width: 3rem;
-  height: 2rem;
-  margin-bottom: 1rem;
-  border-radius: 0.75rem;
-  border: 2px solid;
-}
-
 .color-button {
   width: 100%;
   height: 100%;
   border: none;
-  background-color: var(--button-color);
+  //background-color: var(--button-color);
   transition: background-color 0.3s;
 }
 
-.color-button:hover {
-  background-color: var(--hover-color);
-}
+//.color-button:hover {
+//  background-color: var(--hover-color);
+//}
 </style>

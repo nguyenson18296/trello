@@ -2,7 +2,7 @@
 import type { CSSProperties } from 'vue';
 
 import AddMemberMenu from '@/components/shared/add-member-menu.vue';
-import EditLabelMenu from './edit-label-menu.vue';
+import EditLabelMenu from '@/components/shared/edit-label-menu.vue';
 import AddBannerMenu from '@/components/shared/add-banner-menu.vue';
 
 const { taskId, labels, columnId } = defineProps({

@@ -47,7 +47,6 @@ const onDragItemToOtherColumn = async (e: any, columnId: number) => {
 }
 
 const tasks = computed(() => getTasksByColumnId(props.columnId)?.tasks);
-
 </script>
 
 <template>
