@@ -352,11 +352,11 @@ watch(menuType, (newValue) => {
   width: 100%;
   height: 100%;
   border: none;
-  //background-color: var(--button-color);
+  background-color: var(--button-color);
   transition: background-color 0.3s;
 }
 
-//.color-button:hover {
-//  background-color: var(--hover-color);
-//}
+.color-button:hover {
+  background-color: var(--hover-color);
+}
 </style>
