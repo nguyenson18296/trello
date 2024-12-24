@@ -36,7 +36,6 @@ const labelMenuStyle = ref<CSSProperties>({
 });
 
 watch(() => selectedTask.value?.labels, (newValue) => {
-  console.log('new value', newValue);
   labels.value = newValue ?? [];
 });
 

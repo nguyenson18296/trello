@@ -1,7 +1,7 @@
 <template>
   <div class="card flex justify-center">
     <Dialog v-model:visible="isTaskModalOpen" :modal="true" :dismissableMask="true" :header="task.title"
-      :style="{ width: '60dvw', height: '100dvh' }" :pt="{
+      :style="{ width: '50dvw', height: '100dvh' }" :pt="{
       header: () => ({
         class: ['!pb-0']
       })
@@ -38,7 +38,7 @@
             </div>
           </section>
         </div>
-        <div class="grid grid-cols-[[main]_568px_[sidebar]_minmax(0,1fr)] grid-rows-[auto_auto] gap-x-4 gap-y-2">
+        <div class="grid grid-cols-[[main]_70%_[sidebar]_minmax(0,1fr)] grid-rows-[auto_auto] gap-x-4 gap-y-2">
           <div class="col-start-[main] pl-4 pb-2">
             <div class="flex flex-wrap gap-x-2 gap-y-2 pl-10">
               <left-member-section />
@@ -197,7 +197,6 @@ const onChangeName = async (e: Event) => {
 
 const openBannerMenu = (event: MouseEvent) => {
   const buttonRect = (event.target as HTMLButtonElement)?.getBoundingClientRect();
-  console.log('buttonRect', buttonRect);
 
   bannerMenu.value = !bannerMenu.value;
   bannerMenuStyle.value = {
