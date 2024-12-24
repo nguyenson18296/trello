@@ -78,7 +78,6 @@ const onUpdateTaskDate = async () => {
     body: JSON.stringify(body),
     onResponse: (response) => {
       if (response.response._data.success) {
-        console.log('response', response.response._data.data);
         setSelectedTask({
           start_date: body.start_date?.toString(),
           due_date: body.due_date?.toString()
