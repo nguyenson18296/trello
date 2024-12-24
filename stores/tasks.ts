@@ -21,7 +21,6 @@ export const useTasksStore = defineStore("tasks", {
       });
     },
     setSelectedTask(task: Partial<ITaskOverview>) {
-      console.log("setSelectedTask", task);
       this.selectedTask = {
         ...this.selectedTask,
         ...(task as ITaskOverview)

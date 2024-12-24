@@ -35,8 +35,6 @@ const { users: usersProps, id: taskId, slug } = defineProps({
   },
 })
 
-const emits = defineEmits(['select']);
-
 const config = useRuntimeConfig();
 const toast = useToast();
 const users = ref<IUser[]>(usersProps);
